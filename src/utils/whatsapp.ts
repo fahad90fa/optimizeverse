@@ -25,5 +25,4 @@ export const redirectToWhatsApp = (
 };
 
 // Default WhatsApp number for the application
-// Replace with your actual WhatsApp number
-export const DEFAULT_WHATSAPP_NUMBER = '1234567890';
+export const DEFAULT_WHATSAPP_NUMBER = '923320407479';

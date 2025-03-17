@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Lock, Mail, User, ShieldAlert, Phone, Upload } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { login } from '@/utils/auth'; // Import the login function
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -55,7 +56,7 @@ const Signup = () => {
     }
 
     // Here you would typically make an API call to register the user
-    // For now, we'll store data in localStorage to simulate a database
+    // For now, we'll create a user object and log them in directly
     const userData = {
       name,
       email,
@@ -64,12 +65,15 @@ const Signup = () => {
       createdAt: new Date().toISOString(),
     };
     
-    localStorage.setItem('currentUser', JSON.stringify(userData));
+    // Log the user in immediately after signup
+    login(userData);
     
     toast({
       title: "Success",
       description: "Your account has been created successfully",
     });
+    
+    // Redirect to home page after successful signup
     navigate('/');
   };
 
