@@ -29,6 +29,14 @@ export const getCurrentUser = () => {
 };
 
 /**
+ * Log in a user
+ * @param userData User data to store
+ */
+export const login = (userData: any): void => {
+  localStorage.setItem('currentUser', JSON.stringify(userData));
+};
+
+/**
  * Log out the current user
  */
 export const logout = (): void => {

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Link, useNavigate } from 'react-router-dom';
@@ -8,12 +8,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Lock, Mail, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { isLoggedIn, login } from '@/utils/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if already logged in
+  useEffect(() => {
+    if (isLoggedIn()) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +41,13 @@ const Login = () => {
         title: "Admin Login Successful",
         description: "Welcome to the admin dashboard",
       });
+      // Use the login utility for admin
+      login({
+        email,
+        name: "Admin",
+        isAdmin: true,
+        profilePic: "https://i.pravatar.cc/150?img=12",
+      });
       navigate('/admin-dashboard');
       return;
     }
@@ -45,7 +60,8 @@ const Login = () => {
       profilePic: "https://i.pravatar.cc/150?img=1", // Default avatar
     };
     
-    localStorage.setItem('currentUser', JSON.stringify(userData));
+    // Use the login utility
+    login(userData);
     
     toast({
       title: "Success",
