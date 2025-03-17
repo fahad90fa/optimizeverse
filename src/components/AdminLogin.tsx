@@ -7,6 +7,7 @@ import { Lock, Mail, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { isLoggedIn, login } from '@/utils/auth';
+import { motion } from 'framer-motion';
 
 const AdminLoginComponent = () => {
   const [email, setEmail] = useState('');
@@ -33,7 +34,7 @@ const AdminLoginComponent = () => {
     e.preventDefault();
     
     // Verify admin credentials
-    if (email === 'admin@optimize.com' && password === 'admin123@') {
+    if (email === 'admin@login' && password === 'admin123@') {
       // Admin login successful
       const adminData = {
         email,
@@ -62,12 +63,22 @@ const AdminLoginComponent = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <motion.div 
+      className="max-w-md mx-auto"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="glass-card rounded-xl p-8">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
+          <motion.div 
+            className="flex justify-center mb-4"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
+          >
             <ShieldAlert className="h-16 w-16 text-optimize-purple" />
-          </div>
+          </motion.div>
           <h1 className="text-2xl font-bold mb-2">
             Admin <span className="gradient-text">Login</span>
           </h1>
@@ -86,7 +97,7 @@ const AdminLoginComponent = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@example.com" 
+                placeholder="admin@login" 
                 className="pl-10 bg-white/5 border-white/10 focus:border-optimize-purple"
               />
             </div>
@@ -110,9 +121,15 @@ const AdminLoginComponent = () => {
           <Button type="submit" className="w-full bg-optimize-purple hover:bg-optimize-purple/90">
             Admin Sign In
           </Button>
+          
+          <div className="text-center text-sm text-gray-400 mt-4">
+            <p>Admin Credentials (for demo): </p>
+            <p>Email: admin@login</p>
+            <p>Password: admin123@</p>
+          </div>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

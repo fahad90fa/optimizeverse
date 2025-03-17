@@ -27,7 +27,7 @@ const LoginForm = () => {
     }
 
     // Check if it's the admin login
-    if (email === 'admin@optimize.com' && password === 'admin123@') {
+    if (email === 'admin@login' && password === 'admin123@') {
       toast({
         title: "Admin Login Successful",
         description: "Welcome to the admin dashboard",
