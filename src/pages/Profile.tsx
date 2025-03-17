@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -9,21 +9,90 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Mail, Phone, MapPin, CreditCard, Package, Settings, Bell, LogOut } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
+
+// User type definition
+interface UserData {
+  name: string;
+  email: string;
+  phone?: string;
+  profilePic?: string;
+  address?: string;
+}
 
 const Profile = () => {
-  const [name, setName] = useState('John Doe');
-  const [email, setEmail] = useState('john.doe@example.com');
-  const [phone, setPhone] = useState('(123) 456-7890');
-  const [address, setAddress] = useState('123 Main St, City, Country');
+  // Default user state
+  const [userData, setUserData] = useState<UserData>({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    profilePic: '',
+  });
+  
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is logged in
+    const storedUser = localStorage.getItem('currentUser');
+    
+    if (!storedUser) {
+      toast({
+        title: "Not logged in",
+        description: "Please login to view your profile",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+    
+    // Parse user data
+    try {
+      const parsedUser = JSON.parse(storedUser);
+      setUserData({
+        name: parsedUser.name || 'User',
+        email: parsedUser.email || '',
+        phone: parsedUser.phone || '',
+        address: parsedUser.address || '',
+        profilePic: parsedUser.profilePic || '',
+      });
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+    }
+    
+    setIsLoading(false);
+  }, [navigate, toast]);
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Update localStorage with new user data
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    
     toast({
       title: "Profile Updated",
       description: "Your profile has been updated successfully.",
     });
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out successfully.",
+    });
+    navigate('/');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-optimize-dark flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-optimize-blue"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-optimize-dark">
@@ -36,12 +105,20 @@ const Profile = () => {
               <div className="glass-card rounded-xl p-6 mb-6">
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 rounded-full bg-gradient-to-r from-optimize-blue to-optimize-purple p-1 mb-4">
-                    <div className="w-full h-full rounded-full bg-optimize-dark flex items-center justify-center">
-                      <User className="h-10 w-10 text-white" />
+                    <div className="w-full h-full rounded-full bg-optimize-dark flex items-center justify-center overflow-hidden">
+                      {userData.profilePic ? (
+                        <img 
+                          src={userData.profilePic} 
+                          alt={userData.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="h-10 w-10 text-white" />
+                      )}
                     </div>
                   </div>
-                  <h2 className="text-xl font-bold">{name}</h2>
-                  <p className="text-gray-400 text-sm">{email}</p>
+                  <h2 className="text-xl font-bold">{userData.name}</h2>
+                  <p className="text-gray-400 text-sm">{userData.email}</p>
                   <Button variant="outline" className="mt-4 w-full border-white/10">
                     Edit Photo
                   </Button>
@@ -70,7 +147,10 @@ const Profile = () => {
                     <Settings className="h-5 w-5 mr-3 text-gray-400" />
                     <span className="text-gray-400">Settings</span>
                   </button>
-                  <button className="w-full flex items-center p-4 hover:bg-white/5 border-l-2 border-transparent">
+                  <button 
+                    className="w-full flex items-center p-4 hover:bg-white/5 border-l-2 border-transparent"
+                    onClick={handleLogout}
+                  >
                     <LogOut className="h-5 w-5 mr-3 text-gray-400" />
                     <span className="text-gray-400">Sign Out</span>
                   </button>
@@ -106,8 +186,8 @@ const Profile = () => {
                               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                               <Input 
                                 id="name" 
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                value={userData.name}
+                                onChange={(e) => setUserData({...userData, name: e.target.value})}
                                 className="pl-10"
                               />
                             </div>
@@ -120,8 +200,8 @@ const Profile = () => {
                               <Input 
                                 id="email" 
                                 type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                value={userData.email}
+                                onChange={(e) => setUserData({...userData, email: e.target.value})}
                                 className="pl-10"
                               />
                             </div>
@@ -133,8 +213,8 @@ const Profile = () => {
                               <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                               <Input 
                                 id="phone" 
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
+                                value={userData.phone}
+                                onChange={(e) => setUserData({...userData, phone: e.target.value})}
                                 className="pl-10"
                               />
                             </div>
@@ -146,8 +226,8 @@ const Profile = () => {
                               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                               <Input 
                                 id="address" 
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
+                                value={userData.address}
+                                onChange={(e) => setUserData({...userData, address: e.target.value})}
                                 className="pl-10"
                               />
                             </div>

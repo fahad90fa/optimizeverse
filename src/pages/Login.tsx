@@ -27,13 +27,31 @@ const Login = () => {
       return;
     }
 
+    // Check if it's the admin login
+    if (email === 'admin@optimize.com' && password === 'admin123@') {
+      toast({
+        title: "Admin Login Successful",
+        description: "Welcome to the admin dashboard",
+      });
+      navigate('/admin-dashboard');
+      return;
+    }
+
     // Here you would typically make an API call to authenticate the user
-    // For now, we'll just simulate a successful login
+    // For now, we'll simulate a successful login and store basic user info
+    const userData = {
+      email,
+      name: "User", // This would typically come from your backend
+      profilePic: "https://i.pravatar.cc/150?img=1", // Default avatar
+    };
+    
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    
     toast({
       title: "Success",
       description: "You have been logged in successfully",
     });
-    navigate('/profile');
+    navigate('/');
   };
 
   return (

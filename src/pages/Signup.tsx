@@ -6,15 +6,32 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Lock, Mail, User, ShieldAlert } from 'lucide-react';
+import { Lock, Mail, User, ShieldAlert, Phone, Upload } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfilePic(file);
+      
+      // Create a preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +39,7 @@ const Signup = () => {
     if (!name || !email || !password) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
@@ -38,12 +55,22 @@ const Signup = () => {
     }
 
     // Here you would typically make an API call to register the user
-    // For now, we'll just simulate a successful registration
+    // For now, we'll store data in localStorage to simulate a database
+    const userData = {
+      name,
+      email,
+      phone: phone || "Not provided",
+      profilePic: profilePicPreview || "https://i.pravatar.cc/150?img=1", // Default avatar if none provided
+      createdAt: new Date().toISOString(),
+    };
+    
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    
     toast({
       title: "Success",
       description: "Your account has been created successfully",
     });
-    navigate('/profile');
+    navigate('/');
   };
 
   return (
@@ -64,6 +91,34 @@ const Signup = () => {
                 </div>
                 
                 <form className="space-y-6" onSubmit={handleSubmit}>
+                  <div className="flex justify-center mb-6">
+                    <div className="relative">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-r from-optimize-blue to-optimize-purple p-1 mb-2">
+                        <div className="w-full h-full rounded-full bg-optimize-dark flex items-center justify-center overflow-hidden">
+                          {profilePicPreview ? (
+                            <img 
+                              src={profilePicPreview} 
+                              alt="Profile Preview" 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="h-10 w-10 text-white" />
+                          )}
+                        </div>
+                      </div>
+                      <label htmlFor="profile-pic" className="absolute bottom-0 right-0 bg-optimize-blue text-white rounded-full p-2 cursor-pointer hover:bg-optimize-blue/90 transition-colors">
+                        <Upload className="h-4 w-4" />
+                      </label>
+                      <input 
+                        type="file" 
+                        id="profile-pic" 
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleProfilePicChange}
+                      />
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="name">Name</Label>
                     <div className="relative">
@@ -89,6 +144,21 @@ const Signup = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com" 
+                        className="pl-10 bg-white/5 border-white/10 focus:border-optimize-blue"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                      <Input 
+                        id="phone" 
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+1 (123) 456-7890" 
                         className="pl-10 bg-white/5 border-white/10 focus:border-optimize-blue"
                       />
                     </div>
